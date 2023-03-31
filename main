@@ -1,4 +1,4 @@
- --//Services
+--//Services
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local runService = game:GetService("RunService")
@@ -136,6 +136,41 @@ function Library:new(options)
 		-- StarterGui.Lib.Main.ContentContainer.UICorner
 		GUI["11"] = Instance.new("UICorner", GUI["10"]);
 		GUI["11"]["CornerRadius"] = UDim.new(0, 5);
+		
+		local frame = GUI["2"]
+		local dragToggle = nil
+		local dragSpeed = 0.1
+		local dragStart = nil
+		local startPos = nil
+
+		local function updateInput(input)
+			local delta = input.Position - dragStart
+			local position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			game:GetService('TweenService'):Create(frame, TweenInfo.new(dragSpeed), {Position = position}):Play()
+		end
+
+		frame.InputBegan:Connect(function(input)
+			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then 
+				dragToggle = true
+				dragStart = input.Position
+				startPos = frame.Position
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragToggle = false
+					end
+				end)
+			end
+		end)
+
+		UIS.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+				if dragToggle then
+					updateInput(input)
+				end
+			end
+		end)
+
 	end
 	
 	--Navigation
@@ -653,7 +688,7 @@ function Library:new(options)
 				Toggle["43"] = Instance.new("Frame", Tab["12"]);
 				Toggle["43"]["BackgroundColor3"] = Color3.fromRGB(18, 18, 18);
 				Toggle["43"]["Size"] = UDim2.new(1, 0, 0, 32);
-				Toggle["43"]["Name"] = options.text;
+				Toggle["43"]["Name"] = options.title;
 
 				-- StarterToggle.Lib.Main.ContentContainer.HomeTab.Toggle.UICorner
 				Toggle["44"] = Instance.new("UICorner", Toggle["43"]);
@@ -802,7 +837,7 @@ function Library:new(options)
 				Slider["2d"] = Instance.new("Frame", Tab["12"]);
 				Slider["2d"]["BackgroundColor3"] = Color3.fromRGB(18, 18, 18);
 				Slider["2d"]["Size"] = UDim2.new(1, 0, 0, 38);
-				Slider["2d"]["Name"] = options.text;
+				Slider["2d"]["Name"] = options.title;
 
 				-- StarterSlider.Lib.Main.ContentContainer.HomeTab.Slider.UICorner
 				Slider["2e"] = Instance.new("UICorner", Slider["2d"]);
@@ -842,7 +877,7 @@ function Library:new(options)
 				Slider["32"]["AnchorPoint"] = Vector2.new(1, 0);
 				Slider["32"]["Size"] = UDim2.new(0, 24, 1, -10);
 				Slider["32"]["Text"] = tostring(options.default);
-				Slider["32"]["Name"] = [[Value]];
+				Slider["32"]["Name"] = [[Amount]];
 				Slider["32"]["BackgroundTransparency"] = 1;
 				Slider["32"]["Position"] = UDim2.new(1, 0, 0, 0);
 
